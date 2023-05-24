@@ -1,25 +1,29 @@
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 from grayScaleImage import grayScaleimage
-from inerpolateimage import controlpoints,knots,bsplininterpolation
+from inerpolateimage import quadratic_b_spline, interpolate_matrix
+from PIL import Image
+import numpy as np
 
 # Get the image file path from the user
 image_path = input("Enter the path to the image file: ")
 
 # Load the original image
-original_image = mpimg.imread(image_path)
+original_image = Image.open(image_path)
 
 #grayscale image
-grayscale_img= grayScaleimage(original_image)
+grayscale_img= original_image.convert("L")
 
-#control points 
-contrl_pts=controlpoints(grayscale_img)
 
-#knots
-knots=knots(grayscale_img,10)
+input_matrix = np.array(grayscale_img)
 
-#interpolate image
-interpolated_img=bsplininterpolation(contrl_pts,knots,3)
+# Define desired output shape
+out_shape = (100, 100)
+
+interpolated_matrix = interpolate_matrix(input_matrix, out_shape)
+
+interpolated_image = Image.fromarray(interpolated_matrix.astype(np.uint8))
+
+interpolated_image.save("output.jpg")
 
 # Create a figure with two subplots side by side
 fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10,5))
@@ -29,7 +33,7 @@ ax1.imshow(original_image)
 ax1.set_title('Original Image')
 
 # Display the loaded image in the right subplot
-ax2.imshow(interpolated_img)
+ax2.imshow(interpolated_image)
 ax2.set_title('Loaded Image')
 
 # Show the figure
